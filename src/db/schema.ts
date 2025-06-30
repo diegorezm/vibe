@@ -31,3 +31,5 @@ export const fragmentTable = createTable("fragments", {
   messageId: text("message_id").references(() => messageTable.id, { onDelete: "cascade" }).notNull(),
 })
 
+
+export type Project = typeof projectsTable.$inferSelect

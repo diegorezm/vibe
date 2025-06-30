@@ -2,8 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { createMessageAction } from "@/domain/messages/controller";
-import { createProjectWithMessageAction } from "@/domain/projects/controller";
+import { createProjectWithMessageAction } from "@/domain/projects/server/controller";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 

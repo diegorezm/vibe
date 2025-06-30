@@ -12,7 +12,7 @@ import { PROMPT } from "./prompt";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { db } from "@/db";
 import { fragmentTable, messageTable } from "@/db/schema";
-import { messageRepository } from "@/domain/messages/repository";
+import { messageRepository } from "@/domain/messages/data/repository";
 
 interface AgentState {
   summary: string,

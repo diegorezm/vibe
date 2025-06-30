@@ -1,9 +1,9 @@
 "use server"
 
-import { ActionState } from "../common/action-state"
-import { messageRepository } from "./repository"
-import { CreateMessageSchema } from "./schemas"
-import { tryCatch } from "../common/try-catch"
+import { ActionState } from "../../common/action-state"
+import { messageRepository } from "../data/repository"
+import { CreateMessageSchema } from "../data/schemas"
+import { tryCatch } from "../../common/try-catch"
 import { inngest } from "@/inngest/client"
 
 export async function findAllMessagesByProjectId(projectId: string) {

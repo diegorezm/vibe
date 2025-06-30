@@ -1,15 +1,40 @@
 "use server"
 
-import { ActionState } from "../common/action-state"
-import { inngest } from "@/inngest/client"
-import { generateSlug } from "random-word-slugs"
 import { db } from "@/db"
-import { messageTable, projectsTable } from "@/db/schema"
-import { CreateProjectWithMessageSchema } from "./schema"
+
+import { inngest } from "@/inngest/client"
+
+import { ActionState } from "../../common/action-state"
+import { CreateProjectWithMessageSchema } from "../data/schema"
+
+import { generateSlug } from "random-word-slugs"
+
+import { messageTable, Project, projectsTable } from "@/db/schema"
+
+import { tryCatch } from "../../common/try-catch"
+import { projectRepository } from "../data/repository"
+
+export async function findProjectById(projectId: string): Promise<ActionState<Project>> {
+  const result = await tryCatch(projectRepository.getById(projectId))
+
+  if (result.error) {
+    return { status: "error", message: "Something went wrong!", errors: { general: [result.error.message] } }
+  }
+
+  if (result.data === undefined) {
+    return { status: "error", message: "This project does not exist!", errors: { general: ["No project found."] } }
+  }
+
+  return {
+    status: "success",
+    data: result.data
+  }
+}
 
 type CreateProjectResponse = {
   projectId: string
 }
+
 export async function createProjectWithMessageAction(_prevState: unknown, formData: FormData): Promise<ActionState<CreateProjectResponse>> {
   const validatedFields = CreateProjectWithMessageSchema.safeParse({
     value: formData.get("value"),
