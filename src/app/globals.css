@@ -199,6 +199,14 @@
   --shadow-2xl: 2px 2px 0px 0px hsl(20 18% 30% / 0.28);
 }
 
+button:hover {
+  cursor: pointer;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

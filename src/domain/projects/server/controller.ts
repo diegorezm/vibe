@@ -9,26 +9,16 @@ import { CreateProjectWithMessageSchema } from "../data/schema"
 
 import { generateSlug } from "random-word-slugs"
 
-import { messageTable, Project, projectsTable } from "@/db/schema"
+import { messageTable, projectsTable } from "@/db/schema"
 
-import { tryCatch } from "../../common/try-catch"
 import { projectRepository } from "../data/repository"
 
-export async function findProjectById(projectId: string): Promise<ActionState<Project>> {
-  const result = await tryCatch(projectRepository.getById(projectId))
-
-  if (result.error) {
-    return { status: "error", message: "Something went wrong!", errors: { general: [result.error.message] } }
+export async function findProjectById(projectId: string) {
+  const project = projectRepository.getById(projectId)
+  if (!project) {
+    throw new Error("No project found.")
   }
-
-  if (result.data === undefined) {
-    return { status: "error", message: "This project does not exist!", errors: { general: ["No project found."] } }
-  }
-
-  return {
-    status: "success",
-    data: result.data
-  }
+  return project
 }
 
 type CreateProjectResponse = {

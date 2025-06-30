@@ -13,6 +13,12 @@ export const fragmentRepository = {
     });
   },
 
+  getByMessageId: async (id: string) => {
+    return db.query.fragmentTable.findFirst({
+      where: eq(fragmentTable.messageId, id),
+    });
+  },
+
   getAll: async () => {
     return db.select().from(fragmentTable);
   },

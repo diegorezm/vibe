@@ -33,3 +33,5 @@ export const fragmentTable = createTable("fragments", {
 
 
 export type Project = typeof projectsTable.$inferSelect
+export type Message = typeof messageTable.$inferInsert
+export type Fragment = typeof fragmentTable.$inferInsert

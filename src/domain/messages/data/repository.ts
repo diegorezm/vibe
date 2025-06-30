@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { messageTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { fragmentTable, messageTable } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
 
 export const messageRepository = {
   create: async (data: typeof messageTable.$inferInsert) => {
@@ -17,6 +17,11 @@ export const messageRepository = {
     return db.select().from(messageTable).where(eq(messageTable.projectId, projectId));
   },
 
+  getAllWithFragment: async (projectId: string) => {
+    return db.select().from(messageTable).where(eq(messageTable.projectId, projectId))
+      .leftJoin(fragmentTable, eq(fragmentTable.messageId, messageTable.id))
+      .orderBy(asc(messageTable.createdAt));
+  },
   update: async (id: string, data: Partial<typeof messageTable.$inferInsert>) => {
     return db.update(messageTable).set(data).where(eq(messageTable.id, id));
   },
