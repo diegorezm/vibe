@@ -4,7 +4,7 @@ import {
   createAgent,
   createNetwork,
   createTool,
-  gemini,
+  openai,
 } from "@inngest/agent-kit";
 import { z } from "zod";
 import { PROMPT } from "./prompt";
@@ -22,14 +22,12 @@ export const codeAgentTask = inngest.createFunction(
     const codeAgent = createAgent({
       name: "code-agent",
       system: PROMPT,
-      model: gemini({
-        model: "gemini-2.0-flash",
-        apiKey: process.env.GEMINI_API_KEY!,
+      model: openai({
+        model: "gpt-4.1",
+        apiKey: process.env.OPEN_AI_API_KEY!,
         defaultParameters: {
-          generationConfig: {
-            temperature: 0.1,
-          },
-        },
+          temperature: 0.1
+        }
       }),
       tools: [
         createTool({
