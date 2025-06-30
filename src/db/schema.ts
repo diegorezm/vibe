@@ -4,13 +4,21 @@ import { v7 as uuidv7 } from "uuid"
 
 export const createTable = sqliteTableCreator((name: string) => `vibe_${name}`);
 
+export const projectsTable = createTable("projects", {
+  id: text("id").primaryKey().$defaultFn(() => uuidv7()),
+  name: text("name").notNull(),
+  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at"),
+})
+
 export const messageTable = createTable("messages", {
   id: text("id").primaryKey().$defaultFn(() => uuidv7()),
   content: text("content").notNull(),
   role: text("role", { enum: ["user", "assistant"] }).notNull(),
   type: text("type", { enum: ["result", "error"] }).notNull(),
   createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`),
-  updatedAt: text("updated_at")
+  updatedAt: text("updated_at"),
+  projectId: text("project_id").references(() => projectsTable.id).notNull()
 })
 
 export const fragmentTable = createTable("fragments", {
@@ -20,3 +28,4 @@ export const fragmentTable = createTable("fragments", {
   files: text("files", { mode: "json" }),
   messageId: text("message_id").references(() => messageTable.id, { onDelete: "cascade" }).notNull(),
 })
+

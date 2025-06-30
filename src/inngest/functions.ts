@@ -21,6 +21,11 @@ interface AgentState {
   }
 }
 
+const eventSchema = z.object({
+  prompt: z.string(),
+  projectId: z.string()
+})
+
 export const codeAgentTask = inngest.createFunction(
   { id: "create-next-app" },
   { event: "code/generate.code" },
@@ -89,10 +94,10 @@ export const codeAgentTask = inngest.createFunction(
                 try {
                   const updatedFiles = network.state.data.files || {};
                   const sandbox = await getSandbox(sandboxId);
-                  files.map(async (f) => {
-                    await sandbox.files.write(f.path, f.content);
-                    updatedFiles[f.path] = f.content
-                  });
+                  for (const file of files) {
+                    await sandbox.files.write(file.path, file.content);
+                    updatedFiles[file.path] = file.content
+                  }
                   return updatedFiles;
                 } catch (error) {
                   return "Error: " + error;
@@ -153,9 +158,10 @@ export const codeAgentTask = inngest.createFunction(
       },
     });
 
-    const result = await network.run(event.data.prompt);
+    const inputValues = eventSchema.parse(event.data)
+    const result = await network.run(inputValues.prompt);
 
-    const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0
+    const isError = result.state.data.summary === undefined || result.state.data.summary === "" || Object.keys(result.state.data.files).length === 0
 
     const sandboxUrl = await step.run("get-sandbox-url", async () => {
       const sandbox = await getSandbox(sandboxId);
@@ -165,18 +171,22 @@ export const codeAgentTask = inngest.createFunction(
 
     await step.run("save-result", async () => {
       if (isError) {
+        console.log(`Summary: ${result.state.data.summary}\nFiles: ${result.state.data.files}\n`)
         return await messageRepository.create({
           content: "Something went wrong!",
+          projectId: inputValues.projectId,
           role: "assistant",
           type: "error"
         })
       }
+
       return await db.transaction(async (tx) => {
         try {
           const [messageResult] = await tx.insert(messageTable).values({
             content: result.state.data.summary,
             role: "assistant",
             type: "result",
+            projectId: inputValues.projectId
           }).returning()
 
           if (!messageResult) {

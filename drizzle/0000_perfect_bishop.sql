@@ -13,5 +13,14 @@ CREATE TABLE `vibe_messages` (
 	`role` text NOT NULL,
 	`type` text NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text,
+	`project_id` text NOT NULL,
+	FOREIGN KEY (`project_id`) REFERENCES `vibe_projects`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `vibe_projects` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text
 );

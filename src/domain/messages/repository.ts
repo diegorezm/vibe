@@ -13,8 +13,8 @@ export const messageRepository = {
     });
   },
 
-  getAll: async () => {
-    return db.select().from(messageTable);
+  getAll: async (projectId: string) => {
+    return db.select().from(messageTable).where(eq(messageTable.projectId, projectId));
   },
 
   update: async (id: string, data: Partial<typeof messageTable.$inferInsert>) => {
