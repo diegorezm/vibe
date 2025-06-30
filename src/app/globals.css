@@ -221,4 +221,11 @@ a:hover {
 html,
 body {
   font-family: "DM Sans", sans-serif, system-ui;
+  font-optical-sizing: auto;
+  line-height: 1.5;
+  font-weight: 400;
+  font-style: normal;
+  scrollbar-color: var(--foreground) var(--background);
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
 }
