@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 export const messageRepository = {
   create: async (data: typeof messageTable.$inferInsert) => {
-    return db.insert(messageTable).values(data);
+    return db.insert(messageTable).values(data).returning();
   },
 
   getById: async (id: string) => {

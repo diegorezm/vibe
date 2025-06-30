@@ -1,7 +1,6 @@
 CREATE TABLE `vibe_fragments` (
 	`id` text PRIMARY KEY NOT NULL,
 	`title` text,
-	`message` text NOT NULL,
 	`sandbox_url` text,
 	`files` text,
 	`message_id` text NOT NULL,

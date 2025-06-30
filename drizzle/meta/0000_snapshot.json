@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "27d43ff8-b9fd-4899-b7c8-2405084d75af",
+  "id": "f1397f30-0fc9-4b5f-86ca-9875186441b9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "vibe_fragments": {
@@ -19,13 +19,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
-        },
-        "message": {
-          "name": "message",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
           "autoincrement": false
         },
         "sandbox_url": {

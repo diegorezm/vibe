@@ -2,21 +2,24 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { invokeAgent } from "./actions";
+import { createMessageAction } from "@/domain/messages/controller";
+import { useActionState } from "react";
 
 export default function Home() {
-  const [prompt, setPrompt] = useState("")
+  const [state, action, isPending] = useActionState(createMessageAction, null)
 
   return (
     <div className="p-4">
-      <form className="space-y-2" onSubmit={(e) => {
-        e.preventDefault()
-        invokeAgent(prompt).catch(e => console.error(e))
-      }}>
-        <Textarea placeholder="Write your prompt here..." onChange={e => setPrompt(e.target.value)} value={prompt} />
-        <Button>Send</Button>
+      <form className="space-y-2" action={action}>
+        <Textarea placeholder="Write your prompt here..." name="value" minLength={1} maxLength={1024} />
+        <Button disabled={isPending}>Send</Button>
       </form>
+      {state?.status === "error" && (
+        <p>{state.message ?? "Something went wrong!"}</p>
+      )}
+      {state?.status === "success" && (
+        <p>Message sent!!</p>
+      )}
     </div>
   );
 }

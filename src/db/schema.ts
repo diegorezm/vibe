@@ -16,7 +16,6 @@ export const messageTable = createTable("messages", {
 export const fragmentTable = createTable("fragments", {
   id: text("id").primaryKey().$defaultFn(() => uuidv7()),
   title: text("title"),
-  message: text("message").notNull(),
   sandboxUrl: text("sandbox_url"),
   files: text("files", { mode: "json" }),
   messageId: text("message_id").references(() => messageTable.id, { onDelete: "cascade" }).notNull(),

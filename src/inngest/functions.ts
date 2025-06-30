@@ -5,10 +5,21 @@ import {
   createNetwork,
   createTool,
   openai,
+  Tool,
 } from "@inngest/agent-kit";
 import { z } from "zod";
 import { PROMPT } from "./prompt";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
+import { db } from "@/db";
+import { fragmentTable, messageTable } from "@/db/schema";
+import { messageRepository } from "@/domain/messages/repository";
+
+interface AgentState {
+  summary: string,
+  files: {
+    [path: string]: string
+  }
+}
 
 export const codeAgentTask = inngest.createFunction(
   { id: "create-next-app" },
@@ -19,7 +30,7 @@ export const codeAgentTask = inngest.createFunction(
       return sandbox.sandboxId;
     });
 
-    const codeAgent = createAgent({
+    const codeAgent = createAgent<AgentState>({
       name: "code-agent",
       system: PROMPT,
       model: openai({
@@ -71,7 +82,7 @@ export const codeAgentTask = inngest.createFunction(
               }),
             ),
           }),
-          handler: async ({ files }, { step, network }) => {
+          handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
             const newFiles = await step?.run(
               "createOrUpdateFiles",
               async () => {
@@ -80,7 +91,7 @@ export const codeAgentTask = inngest.createFunction(
                   const sandbox = await getSandbox(sandboxId);
                   files.map(async (f) => {
                     await sandbox.files.write(f.path, f.content);
-                    updatedFiles[f.path] = f.content;
+                    updatedFiles[f.path] = f.content
                   });
                   return updatedFiles;
                 } catch (error) {
@@ -129,7 +140,7 @@ export const codeAgentTask = inngest.createFunction(
       },
     });
 
-    const network = createNetwork({
+    const network = createNetwork<AgentState>({
       name: "coding-agent-network",
       agents: [codeAgent],
       maxIter: 15,
@@ -144,11 +155,49 @@ export const codeAgentTask = inngest.createFunction(
 
     const result = await network.run(event.data.prompt);
 
+    const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0
+
     const sandboxUrl = await step.run("get-sandbox-url", async () => {
       const sandbox = await getSandbox(sandboxId);
       const host = sandbox.getHost(3000);
       return `https://${host}`;
     });
+
+    await step.run("save-result", async () => {
+      if (isError) {
+        return await messageRepository.create({
+          content: "Something went wrong!",
+          role: "assistant",
+          type: "error"
+        })
+      }
+      return await db.transaction(async (tx) => {
+        try {
+          const [messageResult] = await tx.insert(messageTable).values({
+            content: result.state.data.summary,
+            role: "assistant",
+            type: "result",
+          }).returning()
+
+          if (!messageResult) {
+            throw new Error("Failed to create message.");
+          }
+
+          const lastInsertedId = messageResult.id
+
+          await tx.insert(fragmentTable).values({
+            sandboxUrl: sandboxUrl,
+            title: "Fragment",
+            messageId: lastInsertedId,
+            files: result.state.data.files,
+          })
+        } catch (error) {
+          tx.rollback();
+          console.error(error)
+          return error
+        }
+      })
+    })
 
     return {
       url: sandboxUrl,
