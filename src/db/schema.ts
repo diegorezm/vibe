@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTableCreator, text, SelectedFields } from "drizzle-orm/sqlite-core";
+import { sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 import { v7 as uuidv7 } from "uuid"
 
 export const createTable = sqliteTableCreator((name: string) => `vibe_${name}`);
