@@ -18,7 +18,9 @@ export const messageTable = createTable("messages", {
   type: text("type", { enum: ["result", "error"] }).notNull(),
   createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text("updated_at"),
-  projectId: text("project_id").references(() => projectsTable.id).notNull()
+  projectId: text("project_id").references(() => projectsTable.id, {
+    onDelete: "cascade"
+  }).notNull()
 })
 
 export const fragmentTable = createTable("fragments", {

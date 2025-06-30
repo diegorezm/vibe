@@ -8,6 +8,13 @@
       "when": 1751309622128,
       "tag": "0000_perfect_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1751313329847,
+      "tag": "0001_keen_multiple_man",
+      "breakpoints": true
     }
   ]
 }
