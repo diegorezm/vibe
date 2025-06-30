@@ -22,14 +22,17 @@ interface AgentState {
 }
 
 const eventSchema = z.object({
-  prompt: z.string(),
-  projectId: z.string()
+  prompt: z.string().min(1).max(1024),
+  projectId: z.string().uuid()
 })
 
 export const codeAgentTask = inngest.createFunction(
   { id: "create-next-app" },
   { event: "code/generate.code" },
   async ({ event, step }) => {
+    // Parsing it here because if it fails nothing else should run.
+    const inputValues = eventSchema.parse(event.data)
+
     const sandboxId = await step.run("get-sandbox-id", async () => {
       const sandbox = await Sandbox.create("diegorezm-vibe-test");
       return sandbox.sandboxId;
@@ -158,7 +161,6 @@ export const codeAgentTask = inngest.createFunction(
       },
     });
 
-    const inputValues = eventSchema.parse(event.data)
     const result = await network.run(inputValues.prompt);
 
     const isError = result.state.data.summary === undefined || result.state.data.summary === "" || Object.keys(result.state.data.files).length === 0
