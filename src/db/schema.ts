@@ -1,0 +1,23 @@
+import { sql } from "drizzle-orm";
+import { sqliteTableCreator, text, SelectedFields } from "drizzle-orm/sqlite-core";
+import { v7 as uuidv7 } from "uuid"
+
+export const createTable = sqliteTableCreator((name: string) => `vibe_${name}`);
+
+export const messageTable = createTable("messages", {
+  id: text("id").primaryKey().$defaultFn(() => uuidv7()),
+  content: text("content").notNull(),
+  role: text("role", { enum: ["user", "assistant"] }).notNull(),
+  type: text("type", { enum: ["result", "error"] }).notNull(),
+  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at")
+})
+
+export const fragmentTable = createTable("fragments", {
+  id: text("id").primaryKey().$defaultFn(() => uuidv7()),
+  title: text("title"),
+  message: text("message").notNull(),
+  sandboxUrl: text("sandbox_url"),
+  files: text("files", { mode: "json" }),
+  messageId: text("message_id").references(() => messageTable.id, { onDelete: "cascade" }).notNull(),
+})

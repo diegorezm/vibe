@@ -1,6 +1,6 @@
 
-import { inngest } from "@/server/inngest/client";
-import { codeAgentTask } from "@/server/inngest/functions";
+import { inngest } from "@/inngest/client";
+import { codeAgentTask } from "@/inngest/functions";
 import { serve } from "inngest/next";
 
 // Create an API that serves zero functions
