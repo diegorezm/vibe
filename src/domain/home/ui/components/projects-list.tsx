@@ -1,10 +1,12 @@
 "use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
 import { findAllProjects } from "@/domain/projects/server/controller"
 import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
+import { Loader2 } from "lucide-react"
 
 export function ProjectsList() {
   const { data: projects, isLoading, isError } = useQuery({
@@ -13,10 +15,21 @@ export function ProjectsList() {
       return await findAllProjects()
     }
   })
+
   return (
     <div className="w-full rounded-xl p-8 border flex flex-col gap-y-6 sm:gap-y-4">
       <h2 className="text-2xl font-semibold"> Previous projects</h2>
       <div className="grid grid-cols1 sm:grid-cols-3 gap-6">
+        {isLoading && (
+          <div className="col-span-full flex justify-center">
+            <Loader2 className="animate-spin" />
+          </div>
+        )}
+        {isError && (
+          <div className="col-span-full flex justify-center">
+            <p className="text-sm text-muted-foreground">Something went wrong!</p>
+          </div>
+        )}
         {projects?.length === 0 && (
           <div className="col-span-full text-center">
             <p className="text-sm text-muted-foreground">No projects found.</p>
