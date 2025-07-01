@@ -15,12 +15,19 @@ CREATE TABLE `vibe_messages` (
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text,
 	`project_id` text NOT NULL,
-	FOREIGN KEY (`project_id`) REFERENCES `vibe_projects`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`project_id`) REFERENCES `vibe_projects`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `vibe_projects` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`user_id` text NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text
+);
+--> statement-breakpoint
+CREATE TABLE `vibe_usage` (
+	`key` text PRIMARY KEY NOT NULL,
+	`points` numeric NOT NULL,
+	`expire` text
 );

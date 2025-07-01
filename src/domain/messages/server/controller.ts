@@ -1,12 +1,13 @@
 "use server"
 
-import { ACTION_ERRORS, ActionState } from "../../common/action-state"
+import { ActionState } from "../../common/action-state"
 import { messageRepository } from "../data/repository"
 import { CreateMessageSchema } from "../data/schemas"
 import { tryCatch } from "../../common/try-catch"
 import { inngest } from "@/inngest/client"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { consumeCredits } from "@/lib/usage"
 
 export async function findAllMessagesByProjectId(projectId: string) {
   const { isAuthenticated } = await auth()
@@ -41,6 +42,28 @@ export async function createMessageAction(_prevState: unknown, formData: FormDat
       status: "error",
       message: "Something went wrong while validating!",
       errors: validatedFields.error.flatten().fieldErrors
+    }
+  }
+
+  const consumeCreditResult = await tryCatch(consumeCredits())
+  if (consumeCreditResult.error) {
+    console.error(consumeCreditResult.error)
+    if (consumeCreditResult.error instanceof Error) {
+      return {
+        status: "error",
+        message: "Something went wrong while creating your message!",
+        errors: {
+          general: [consumeCreditResult.error.message]
+        }
+      }
+    } else {
+      return {
+        status: "error",
+        message: "You don't have any more credits!",
+        errors: {
+          general: ["You don't have any more credits!"]
+        }
+      }
     }
   }
 

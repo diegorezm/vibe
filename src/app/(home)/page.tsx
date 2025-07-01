@@ -18,7 +18,7 @@ export default async function HomePage() {
           Create apps and websites by chatting with AI
         </p>
         <div className="max-w-3xl mx-auto w-full">
-          <ProjectForm isAuthenticated={isAuthenticated} />
+          <ProjectForm />
         </div>
         {isAuthenticated && (
           <ProjectsList />

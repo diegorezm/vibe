@@ -21,7 +21,7 @@ export function ProjectsList() {
   })
 
   return (
-    <div className="w-full rounded-xl p-8 border flex flex-col gap-y-6 sm:gap-y-4">
+    <div className="w-full rounded-xl p-8 border flex flex-col gap-y-6 sm:gap-y-4 bg-card">
       <h2 className="text-2xl font-semibold"> Previous projects</h2>
       <div className="grid grid-cols1 sm:grid-cols-3 gap-6">
         {isLoading && (

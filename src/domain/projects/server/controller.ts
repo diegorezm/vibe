@@ -4,7 +4,7 @@ import { db } from "@/db"
 
 import { inngest } from "@/inngest/client"
 
-import { ACTION_ERRORS, ActionState } from "../../common/action-state"
+import { ActionState } from "../../common/action-state"
 import { CreateProjectWithMessageSchema } from "../data/schema"
 
 import { generateSlug } from "random-word-slugs"
@@ -14,6 +14,8 @@ import { messageTable, projectsTable } from "@/db/schema"
 import { projectRepository } from "../data/repository"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { tryCatch } from "@/domain/common/try-catch"
+import { consumeCredits } from "@/lib/usage"
 
 export async function findAllProjects(userId: string) {
   const { isAuthenticated } = await auth()
@@ -47,6 +49,28 @@ export async function createProjectWithMessageAction(_prevState: unknown, formDa
 
   if (!isAuthenticated) {
     return redirect("/sign-in")
+  }
+
+  const consumeCreditResult = await tryCatch(consumeCredits())
+  if (consumeCreditResult.error) {
+    console.error(consumeCreditResult.error)
+    if (consumeCreditResult.error instanceof Error) {
+      return {
+        status: "error",
+        message: "Something went wrong while creating your message!",
+        errors: {
+          general: [consumeCreditResult.error.message]
+        }
+      }
+    } else {
+      return {
+        status: "error",
+        message: "You don't have any more credits!",
+        errors: {
+          general: ["You don't have any more credits!"]
+        }
+      }
+    }
   }
 
   const validatedFields = CreateProjectWithMessageSchema.safeParse({

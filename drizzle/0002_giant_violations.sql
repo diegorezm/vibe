@@ -1,1 +1,0 @@
-ALTER TABLE `vibe_projects` ADD `user_id` text NOT NULL;

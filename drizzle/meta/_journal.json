@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1751309622128,
-      "tag": "0000_perfect_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1751313329847,
-      "tag": "0001_keen_multiple_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1751385495014,
-      "tag": "0002_giant_violations",
+      "when": 1751401723492,
+      "tag": "0000_lame_tiger_shark",
       "breakpoints": true
     }
   ]

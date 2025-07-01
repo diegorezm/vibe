@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
+import { sqliteTableCreator, text, numeric } from "drizzle-orm/sqlite-core";
 import { v7 as uuidv7 } from "uuid"
 
 export const createTable = sqliteTableCreator((name: string) => `vibe_${name}`);
@@ -32,7 +32,13 @@ export const fragmentTable = createTable("fragments", {
   messageId: text("message_id").references(() => messageTable.id, { onDelete: "cascade" }).notNull(),
 })
 
+export const usageTable = createTable("usage", {
+  key: text("key").primaryKey(),
+  points: numeric("points").notNull(),
+  expire: text("expire"),
+})
 
 export type Project = typeof projectsTable.$inferSelect
 export type Message = typeof messageTable.$inferInsert
 export type Fragment = typeof fragmentTable.$inferInsert
+export type Usage = typeof usageTable.$inferSelect
