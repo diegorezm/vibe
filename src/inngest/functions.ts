@@ -45,7 +45,8 @@ export const codeAgentTask = inngest.createFunction(
       const formattedMessages: Message[] = []
       const messages = await db.query.messageTable.findMany({
         where: eq(messageTable.projectId, inputValues.projectId),
-        orderBy: desc(messageTable.createdAt)
+        orderBy: desc(messageTable.createdAt),
+        limit: 5
       })
       for (const message of messages) {
         formattedMessages.push({
@@ -54,7 +55,7 @@ export const codeAgentTask = inngest.createFunction(
           content: message.content
         })
       }
-      return formattedMessages
+      return formattedMessages.reverse()
     })
 
     const state = createState<AgentState>({
