@@ -5,14 +5,17 @@ import {
   createNetwork,
   createTool,
   openai,
-  Tool,
+  type Tool,
+  type Message,
+  createState
 } from "@inngest/agent-kit";
 import { z } from "zod";
-import { PROMPT } from "./prompt";
+import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "./prompt";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { db } from "@/db";
 import { fragmentTable, messageTable } from "@/db/schema";
 import { messageRepository } from "@/domain/messages/data/repository";
+import { desc, eq } from "drizzle-orm";
 
 interface AgentState {
   summary: string,
@@ -37,6 +40,29 @@ export const codeAgentTask = inngest.createFunction(
       const sandbox = await Sandbox.create("diegorezm-vibe-test");
       return sandbox.sandboxId;
     });
+
+    const previousMessages = await step.run("get-previous-messages", async () => {
+      const formattedMessages: Message[] = []
+      const messages = await db.query.messageTable.findMany({
+        where: eq(messageTable.projectId, inputValues.projectId),
+        orderBy: desc(messageTable.createdAt)
+      })
+      for (const message of messages) {
+        formattedMessages.push({
+          type: "text",
+          role: message.role,
+          content: message.content
+        })
+      }
+      return formattedMessages
+    })
+
+    const state = createState<AgentState>({
+      summary: "",
+      files: {}
+    }, {
+      messages: previousMessages
+    })
 
     const codeAgent = createAgent<AgentState>({
       name: "code-agent",
@@ -152,6 +178,7 @@ export const codeAgentTask = inngest.createFunction(
       name: "coding-agent-network",
       agents: [codeAgent],
       maxIter: 15,
+      defaultState: state,
       router: async ({ network }) => {
         const summary = network.state.data.summary;
         if (summary) {
@@ -161,7 +188,36 @@ export const codeAgentTask = inngest.createFunction(
       },
     });
 
-    const result = await network.run(inputValues.prompt);
+    const result = await network.run(inputValues.prompt, { state });
+
+    const fragmentTitleGenerator = createAgent({
+      name: "fragment-title-generator",
+      description: "A fragment title generator",
+      system: FRAGMENT_TITLE_PROMPT,
+      model: openai({
+        model: "gpt-4o",
+        apiKey: process.env.OPEN_AI_API_KEY!,
+      }),
+    })
+
+    const responseGenerator = createAgent({
+      name: "response-generator",
+      description: "A response generator",
+      system: RESPONSE_PROMPT,
+      model: openai({
+        model: "gpt-4o",
+        apiKey: process.env.OPEN_AI_API_KEY!,
+      }),
+    })
+
+    const { output: fragmentTitle } = await fragmentTitleGenerator.run(result.state.data.summary)
+    const { output: response } = await responseGenerator.run(result.state.data.summary)
+
+    const parseAIResponse = (m: Message) => {
+      if (m.type !== "text") return "Fragment"
+      if (Array.isArray(m.content)) return m.content.map((txt) => txt).join("")
+      return m.content
+    }
 
     const isError = result.state.data.summary === undefined || result.state.data.summary === "" || Object.keys(result.state.data.files).length === 0
 
@@ -173,7 +229,6 @@ export const codeAgentTask = inngest.createFunction(
 
     await step.run("save-result", async () => {
       if (isError) {
-        console.log(`Summary: ${result.state.data.summary}\nFiles: ${result.state.data.files}\n`)
         return await messageRepository.create({
           content: "Something went wrong!",
           projectId: inputValues.projectId,
@@ -185,7 +240,7 @@ export const codeAgentTask = inngest.createFunction(
       return await db.transaction(async (tx) => {
         try {
           const [messageResult] = await tx.insert(messageTable).values({
-            content: result.state.data.summary,
+            content: parseAIResponse(response[0]),
             role: "assistant",
             type: "result",
             projectId: inputValues.projectId
@@ -199,7 +254,7 @@ export const codeAgentTask = inngest.createFunction(
 
           await tx.insert(fragmentTable).values({
             sandboxUrl: sandboxUrl,
-            title: "Fragment",
+            title: parseAIResponse(fragmentTitle[0]),
             messageId: lastInsertedId,
             files: result.state.data.files,
           })
