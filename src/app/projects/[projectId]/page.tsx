@@ -4,6 +4,7 @@ import { ProjectViewSkeleton } from "@/domain/projects/ui/components/project-vie
 import { ProjectView } from "@/domain/projects/ui/views/project-view"
 import { getQueryClient } from "@/lib/get-query-client"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { ErrorBoundary } from "react-error-boundary"
 import { Suspense } from "react"
 
 interface Props {
@@ -29,8 +30,10 @@ export default async function ProjectPage({ params }: Props) {
   })
 
   return <HydrationBoundary state={dehydrate(queryClient)}>
-    <Suspense fallback={<ProjectViewSkeleton />}>
-      <ProjectView projectId={projectId} />
-    </Suspense>
+    <ErrorBoundary fallback={<p>Error</p>}>
+      <Suspense fallback={<ProjectViewSkeleton />}>
+        <ProjectView projectId={projectId} />
+      </Suspense>
+    </ErrorBoundary>
   </HydrationBoundary>
 }
