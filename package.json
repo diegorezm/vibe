@@ -47,7 +47,6 @@
     "react-resizable-panels": "^3.0.3",
     "react-textarea-autosize": "^8.5.9",
     "sonner": "^2.0.5",
-    "sqlite3": "^5.1.7",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0",
     "zod": "^3.25.67"
