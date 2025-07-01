@@ -13,6 +13,10 @@ import { messageTable, projectsTable } from "@/db/schema"
 
 import { projectRepository } from "../data/repository"
 
+export async function findAllProjects() {
+  return await projectRepository.getAll()
+}
+
 export async function findProjectById(projectId: string) {
   const project = await projectRepository.getById(projectId)
   if (!project) {

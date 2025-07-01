@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import TextareaAutosize from "react-textarea-autosize"
 import { ArrowUpIcon, Loader2Icon } from "lucide-react"
-import { startTransition, useActionState, useEffect, useState } from "react"
+import { startTransition, useActionState, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export function MessageForm({ projectId }: Props) {
+  const formRef = useRef<HTMLFormElement | null>(null)
   const [isFocused, setIsFocused] = useState(false)
   const [state, action, isPending] = useActionState(createMessageAction, null)
   const queryClient = useQueryClient()
@@ -25,10 +26,13 @@ export function MessageForm({ projectId }: Props) {
       queryClient.invalidateQueries({
         queryKey: ["messages", { projectId }]
       }).catch(e => console.error(e))
+      if (formRef.current) {
+        formRef.current.reset()
+      }
     }
   }, [state, isPending, queryClient, projectId])
 
-  return <form action={action} className={cn("relative border p-4 pt-1 rounded-xl bg-sidebar dark:bg-sidebar transition-all",
+  return <form action={action} ref={formRef} className={cn("relative border p-4 pt-1 rounded-xl bg-sidebar dark:bg-sidebar transition-all",
     isFocused && "shadow-xs",
     sowUsage && "rounded-t-none")}>
     <TextareaAutosize
@@ -48,9 +52,6 @@ export function MessageForm({ projectId }: Props) {
           if (form) {
             startTransition(() => {
               action(new FormData(form))
-              if (!isPending && state?.status === "success") {
-                form.reset()
-              }
             })
           }
         }
