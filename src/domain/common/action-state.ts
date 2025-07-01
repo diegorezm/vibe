@@ -14,3 +14,16 @@ export function getFieldError(
   }
   return undefined
 }
+export type PredefinedActionErrorKey = "unauthorized" | "validationError" | "notFound";
+
+type ActionErrors = { [name: string]: ActionState<any> }
+
+export const ACTION_ERRORS: ActionErrors = {
+  unauthorized: {
+    status: "error",
+    message: "You are not allowed to access this resource!",
+    errors: {
+      general: ["You are not allowed to access this resource!"]
+    }
+  }
+} as const

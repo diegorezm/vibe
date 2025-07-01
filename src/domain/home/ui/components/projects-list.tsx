@@ -7,13 +7,17 @@ import { findAllProjects } from "@/domain/projects/server/controller"
 import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@clerk/nextjs"
 
 export function ProjectsList() {
+  const { userId } = useAuth()
   const { data: projects, isLoading, isError } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      return await findAllProjects()
-    }
+      if (userId === null || userId === undefined) throw new Error("You are not authorized.")
+      return await findAllProjects(userId)
+    },
+    enabled: !!userId
   })
 
   return (

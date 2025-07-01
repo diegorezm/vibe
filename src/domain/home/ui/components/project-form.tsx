@@ -11,7 +11,11 @@ import { createProjectWithMessageAction } from "@/domain/projects/server/control
 import { useRouter } from "next/navigation"
 import { PROJECT_TEMPLATES } from "../constants"
 
-export function ProjectForm() {
+interface Props {
+  isAuthenticated: boolean
+}
+
+export function ProjectForm({ isAuthenticated }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null)
   const [isFocused, setIsFocused] = useState(false)
   const [formValue, setFormValue] = useState("")

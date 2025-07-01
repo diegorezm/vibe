@@ -1,12 +1,20 @@
 "use server"
 
-import { ActionState } from "../../common/action-state"
+import { ACTION_ERRORS, ActionState } from "../../common/action-state"
 import { messageRepository } from "../data/repository"
 import { CreateMessageSchema } from "../data/schemas"
 import { tryCatch } from "../../common/try-catch"
 import { inngest } from "@/inngest/client"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 
 export async function findAllMessagesByProjectId(projectId: string) {
+  const { isAuthenticated } = await auth()
+
+  if (!isAuthenticated) {
+    return redirect("/sign-in")
+  }
+
   const result = await tryCatch(messageRepository.getAllWithFragment(projectId))
 
   if (result.error) {
@@ -17,6 +25,12 @@ export async function findAllMessagesByProjectId(projectId: string) {
 }
 
 export async function createMessageAction(_prevState: unknown, formData: FormData): Promise<ActionState> {
+  const { isAuthenticated } = await auth()
+
+  if (!isAuthenticated) {
+    return redirect("/sign-in")
+  }
+
   const validatedFields = CreateMessageSchema.safeParse({
     value: formData.get("value"),
     projectId: formData.get("projectId")

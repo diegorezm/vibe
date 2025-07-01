@@ -1,8 +1,10 @@
 import { ProjectForm } from "@/domain/home/ui/components/project-form";
 import { ProjectsList } from "@/domain/home/ui/components/projects-list";
+import { auth } from "@clerk/nextjs/server"
 import Image from "next/image";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { isAuthenticated } = await auth()
   return (
     <div className="flex flex-col max-w-5xl mx-auto w-full">
       <section className="space-y-6 py-[16vh] 2xl:py-48">
@@ -16,9 +18,11 @@ export default function HomePage() {
           Create apps and websites by chatting with AI
         </p>
         <div className="max-w-3xl mx-auto w-full">
-          <ProjectForm />
+          <ProjectForm isAuthenticated={isAuthenticated} />
         </div>
-        <ProjectsList />
+        {isAuthenticated && (
+          <ProjectsList />
+        )}
       </section>
     </div>
   );

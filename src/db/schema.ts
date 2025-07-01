@@ -7,6 +7,7 @@ export const createTable = sqliteTableCreator((name: string) => `vibe_${name}`);
 export const projectsTable = createTable("projects", {
   id: text("id").primaryKey().$defaultFn(() => uuidv7()),
   name: text("name").notNull(),
+  userId: text("user_id").notNull(),
   createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text("updated_at"),
 })

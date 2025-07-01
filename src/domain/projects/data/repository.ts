@@ -17,6 +17,10 @@ export const projectRepository = {
     return db.select().from(projectsTable);
   },
 
+  getByUserId: async (userID: stringj) => {
+    return db.select().from(projectsTable).where(eq(projectsTable.userId, userID));
+  },
+
   update: async (id: string, data: Partial<typeof projectsTable.$inferInsert>) => {
     return db.update(projectsTable).set(data).where(eq(projectsTable.id, id));
   },

@@ -15,6 +15,13 @@
       "when": 1751313329847,
       "tag": "0001_keen_multiple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1751385495014,
+      "tag": "0002_giant_violations",
+      "breakpoints": true
     }
   ]
 }
