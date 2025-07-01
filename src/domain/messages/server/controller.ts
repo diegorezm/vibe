@@ -48,7 +48,6 @@ export async function createMessageAction(_prevState: unknown, formData: FormDat
     }
   }
 
-
   await inngest.send({
     name: "code/generate.code",
     data: {

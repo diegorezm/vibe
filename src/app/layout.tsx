@@ -4,6 +4,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -27,14 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${dmSans.variable} ${dmMono.variable} antialiased`}
       >
         <QueryProvider>
-          {children}
+          <ThemeProvider attribute={"class"} defaultTheme="system" disableTransitionOnChange>
+            {children}
+          </ThemeProvider >
+          <Toaster />
         </QueryProvider>
-        <Toaster />
       </body>
     </html>
   );

@@ -13,7 +13,7 @@ export function FragmentCard({ fragment, isActiveFragment, onFragmentClick }: Pr
     onClick={() => onFragmentClick(fragment)}
     className={cn(
       "flex items-start text-start gap-2 border rounded-lg bg-muted w-fit p-3 over:bg-secondary transition-colors",
-      isActiveFragment && "bg-primary text-primary-foreground border-primary hover:bg-primary")}
+      isActiveFragment && "bg-primary text-primary-foreground border-primary hover:bg-primary text-3xl")}
   >
     <Code2Icon className="size-4 mt-0.5" />
     <div className="flex flex-col flex-1">

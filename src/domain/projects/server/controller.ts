@@ -14,7 +14,7 @@ import { messageTable, projectsTable } from "@/db/schema"
 import { projectRepository } from "../data/repository"
 
 export async function findProjectById(projectId: string) {
-  const project = projectRepository.getById(projectId)
+  const project = await projectRepository.getById(projectId)
   if (!project) {
     throw new Error("No project found.")
   }
